@@ -1,0 +1,21 @@
+[options]
+mode prove
+depth 40
+
+[engines]
+smtbmc
+# abc pdr
+# abc pdr
+# aiger avy
+# aiger suprove
+
+[script]
+read_verilog -formal lfsr_fib.v
+read_verilog -formal dblpipe.v
+prep -top dblpipe
+#opt_merge -share_all
+
+
+[files]
+dblpipe.v
+lfsr_fib.v

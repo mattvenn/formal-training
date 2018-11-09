@@ -1,0 +1,32 @@
+[*]
+[*] GTKWave Analyzer v3.3.66 (w)1999-2015 BSI
+[*] Wed Nov  7 17:21:15 2018
+[*]
+[dumpfile] "/home/matt/work/fpga/formal-lessons/exercises/exercise-04/dblpipe/engine_0/trace_induct.vcd"
+[dumpfile_mtime] "Wed Nov  7 17:19:56 2018"
+[dumpfile_size] 4874
+[savefile] "/home/matt/work/fpga/formal-lessons/exercises/exercise-04/dblpipe.gtkw"
+[timestart] 0
+[size] 1756 895
+[pos] -1 -1
+*-6.063459 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] dblpipe.
+[sst_width] 253
+[signals_width] 129
+[sst_expanded] 1
+[sst_vpaned_height] 262
+@28
+dblpipe.a_data
+dblpipe.b_data
+dblpipe.i_ce
+dblpipe.i_clk
+dblpipe.i_data
+dblpipe.o_data
+@200
+-
+@22
+dblpipe.one.sreg[7:0]
+@23
+dblpipe.two.sreg[7:0]
+[pattern_trace] 1
+[pattern_trace] 0

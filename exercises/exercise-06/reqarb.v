@@ -108,11 +108,11 @@ module	reqarb(i_clk, i_reset,
     // if clients are waiting, they keep their i_*_req line high and data must
     // stay the same
     always @(posedge i_clk) begin
-        if(a_wait_count > 0) begin
+        if(f_past_valid && a_wait_count > 0) begin
             assume(i_a_data == $past(i_a_data));
             assume(i_a_req);
         end
-        if(b_wait_count > 0) begin
+        if(f_past_valid && b_wait_count > 0) begin
             assume(i_b_data == $past(i_b_data));
             assume(i_b_req);
         end

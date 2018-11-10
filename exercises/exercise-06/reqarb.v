@@ -147,7 +147,7 @@ module	reqarb(i_clk, i_reset,
         end
         
     //	3. All requests will go through
-    //	assume max wait time is 10 clocks
+    //	define max wait time
     localparam MAX_WAIT = 15;
     reg [15:0] a_wait_count = 0;
     reg [15:0] b_wait_count = 0;

@@ -153,14 +153,14 @@ module	wbpriarbiter(i_clk,
     // as slave to the 2 connected masters
     fwb_slave #(.DW(32), .AW(32), .F_LGDEPTH(4)) fwb_slave_a( 
         .i_clk(i_clk),
-		// The Wishbone bus
-		.i_wb_cyc(i_a_cyc),
+        // The Wishbone bus
+        .i_wb_cyc(i_a_cyc),
         .i_wb_stb(i_a_stb),
         .i_wb_we(i_a_we), 
         .i_wb_addr(i_a_adr), 
         .i_wb_data(i_a_dat), 
         .i_wb_sel(i_a_sel),
-	    .i_wb_ack(o_a_ack),
+        .i_wb_ack(o_a_ack),
         .i_wb_stall(o_a_stall),  // slave formal properties doesn't define o_stall, o_data or o_err)
         .i_wb_idata(0), 
         .i_wb_err(o_a_err));
@@ -175,14 +175,14 @@ module	wbpriarbiter(i_clk,
     // to the rest of the connected bus
     fwb_master #(.DW(32), .AW(32), .F_LGDEPTH(4)) fwb_master(
         .i_clk(i_clk),
-		// The Wishbone bus
-		.i_wb_cyc(o_cyc),
+        // The Wishbone bus
+        .i_wb_cyc(o_cyc),
         .i_wb_stb(o_stb),
         .i_wb_we(o_we), 
         .i_wb_addr(o_adr), 
         .i_wb_data(o_dat), 
         .i_wb_sel(o_sel),
-	    .i_wb_ack(i_ack),
+        .i_wb_ack(i_ack),
         .i_wb_stall(i_stall),  // slave formal properties doesn't define o_stall, o_data or o_err)
         .i_wb_err(i_err));
     

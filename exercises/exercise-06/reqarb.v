@@ -104,16 +104,15 @@ module	reqarb(i_clk, i_reset,
     // assume external inputs
     // assert internal states	
     //
+    //
     // assume clients only send data once they have control of the channel
+    // (i_*_req && !o_*_busy)
+    // so data must stay the same if not this condition
     always @(posedge i_clk)
         if(f_past_valid) begin
-            if(o_a_busy)
+            if(!(i_a_req && !o_a_busy))
                 assume(i_a_data == $past(i_a_data));
-            if(o_b_busy)
-                assume(i_b_data == $past(i_b_data));
-            if(!i_a_req)
-                assume(i_a_data == $past(i_a_data));
-            if(!i_b_req)
+            if(!(i_b_req && !o_b_busy))
                 assume(i_b_data == $past(i_b_data));
         end
 

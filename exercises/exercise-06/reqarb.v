@@ -110,13 +110,12 @@ module	reqarb(i_clk, i_reset,
     // so data must stay the same if not this condition
     always @(posedge i_clk)
         if(f_past_valid) begin
-            if(!(i_a_req && !o_a_busy))
+            if(!($past(i_a_req) && $past(!o_a_busy)))
                 assume(i_a_data == $past(i_a_data));
-            if(!(i_b_req && !o_b_busy))
+            if(!($past(i_b_req) && $past(!o_b_busy)))
                 assume(i_b_data == $past(i_b_data));
         end
 
-        
     //	1. No data will be lost
     //	data could be lost:
     //	a) if either requester is transmitting data and the channel switches

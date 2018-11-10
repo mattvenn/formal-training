@@ -105,16 +105,18 @@ module	reqarb(i_clk, i_reset,
     // assert internal states	
     //
     //
-    // assume clients only send data once they have control of the channel
-    // (i_*_req && !o_*_busy)
-    // so data must stay the same if not this condition
-    always @(posedge i_clk)
-        if(f_past_valid) begin
-            if(!($past(i_a_req) && $past(!o_a_busy)))
-                assume(i_a_data == $past(i_a_data));
-            if(!($past(i_b_req) && $past(!o_b_busy)))
-                assume(i_b_data == $past(i_b_data));
+    // if clients are waiting, they keep their i_*_req line high and data must
+    // stay the same
+    always @(posedge i_clk) begin
+        if(a_wait_count > 0) begin
+            assume(i_a_data == $past(i_a_data));
+            assume(i_a_req);
         end
+        if(b_wait_count > 0) begin
+            assume(i_b_data == $past(i_b_data));
+            assume(i_b_req);
+        end
+    end
 
     //	1. No data will be lost
     //	data could be lost:

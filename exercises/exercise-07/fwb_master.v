@@ -59,15 +59,15 @@ module	fwb_master(i_clk, i_reset,
 	//
 	input	wire			i_clk, i_reset;
 	// Input/master bus
-	output	wire			i_wb_cyc, i_wb_stb, i_wb_we;
-	output	wire	[(AW-1):0]	i_wb_addr;
-	output	wire	[(DW-1):0]	i_wb_data;
-	output	wire	[(DW/8-1):0]	i_wb_sel;
+	input	wire			i_wb_cyc, i_wb_stb, i_wb_we;
+	input	wire	[(AW-1):0]	i_wb_addr;
+	input	wire	[(DW-1):0]	i_wb_data;
+	input	wire	[(DW/8-1):0]	i_wb_sel;
 	//
-	output	wire			i_wb_ack;
-	output	wire			i_wb_stall;
-	output	wire	[(DW-1):0]	i_wb_idata;
-	output	wire			i_wb_err;
+	input	wire			i_wb_ack;
+	input	wire			i_wb_stall;
+	input	wire	[(DW-1):0]	i_wb_idata;
+	input	wire			i_wb_err;
 	//
 	output	reg	[(F_LGDEPTH-1):0]	f_nreqs, f_nacks;
 	output	wire	[(F_LGDEPTH-1):0]	f_outstanding;

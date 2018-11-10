@@ -59,7 +59,7 @@ module	wbpriarbiter(i_clk,
 	i_b_cyc, i_b_stb, i_b_we, i_b_adr, i_b_dat, i_b_sel, o_b_ack, o_b_stall, o_b_err,
 	// Both buses
 	o_cyc, o_stb, o_we, o_adr, o_dat, o_sel, i_ack, i_stall, i_err);
-	parameter			DW=32, AW=32;
+	parameter			DW=8, AW=8;
 	//
 	// ZERO_ON_IDLE uses more logic than the alternative.  It should be
 	// useful for reducing power, as these circuits tend to drive wires
@@ -149,9 +149,18 @@ module	wbpriarbiter(i_clk,
 	end endgenerate
 
 `ifdef	FORMAL
+    // past valid signal
+    reg f_past_valid = 0;
+    reg reset = 1;
+    always @(posedge i_clk) begin
+        f_past_valid <= 1'b1;
+        reset <= 0;
+    end
+
     // connect a slave properties file to master a, as arbiter apprears
     // as slave to the 2 connected masters
-    fwb_slave #(.DW(32), .AW(32), .F_LGDEPTH(4)) fwb_slave_a( 
+    fwb_slave #(.DW(8), .AW(8), .F_LGDEPTH(1)) fwb_slave_a( 
+        .i_reset(reset),
         .i_clk(i_clk),
         // The Wishbone bus
         .i_wb_cyc(i_a_cyc),
@@ -161,7 +170,7 @@ module	wbpriarbiter(i_clk,
         .i_wb_data(i_a_dat), 
         .i_wb_sel(i_a_sel),
         .i_wb_ack(o_a_ack),
-        .i_wb_stall(o_a_stall),  // slave formal properties doesn't define o_stall, o_data or o_err)
+        .i_wb_stall(o_a_stall),
         .i_wb_idata(0), 
         .i_wb_err(o_a_err));
 
@@ -170,10 +179,10 @@ module	wbpriarbiter(i_clk,
     // .
     // .
     
-    
     // connect master properties to the outputs, as arbiter appears as master
     // to the rest of the connected bus
-    fwb_master #(.DW(32), .AW(32), .F_LGDEPTH(4)) fwb_master(
+    fwb_master #(.DW(8), .AW(8), .F_LGDEPTH(1)) fwb_master(
+        .i_reset(reset),
         .i_clk(i_clk),
         // The Wishbone bus
         .i_wb_cyc(o_cyc),
@@ -183,9 +192,8 @@ module	wbpriarbiter(i_clk,
         .i_wb_data(o_dat), 
         .i_wb_sel(o_sel),
         .i_wb_ack(i_ack),
-        .i_wb_stall(i_stall),  // slave formal properties doesn't define o_stall, o_data or o_err)
+        .i_wb_stall(i_stall),
         .i_wb_err(i_err));
-    
     //
     //
     //

@@ -226,9 +226,42 @@ module	wbpriarbiter(i_clk,
 		.f_nreqs(master_nreqs), .f_nacks(master_nacks), .f_outstanding(master_outstanding));
    
 
-   // formal stuff
-   //
-    
+    // formal. master and slave are already behaving. but the 2 masters don't
+    // know how to behave together, so have to assume that they wait their
+    // turns.
+    //
+    localparam MASTER_A_ONLY = 0;
+    localparam MASTER_B_ONLY = 1;
+    localparam NUM_TESTS = 2;
+
+    reg [$clog2(NUM_TESTS)-1:0] test_case = MASTER_A_ONLY;
+
+    always @(posedge i_clk) begin
+        case(test_case)
+            MASTER_A_ONLY: begin
+                // master b not making any requests
+                assume(i_b_cyc == 0); 
+                // so it should never make reqs or see acks
+                assert(slave_b_nacks == 0);
+                assert(slave_b_nreqs == 0);
+
+                // but master a should have same number of acks and reqs as slave
+                assert(slave_a_nacks == master_nacks);
+                assert(slave_a_nreqs == master_nreqs);
+            end
+            MASTER_B_ONLY: begin
+                // master a not making any requests
+                assume(i_a_cyc == 0); 
+                // so it should never make reqs or see acks
+                assert(slave_a_nacks == 0);
+                assert(slave_a_nreqs == 0);
+
+                // but master b should have same number of acks and reqs as slave
+                assert(slave_b_nacks == master_nacks);
+                assert(slave_b_nreqs == master_nreqs);
+            end
+        endcase
+    end 
    
 `endif
 endmodule

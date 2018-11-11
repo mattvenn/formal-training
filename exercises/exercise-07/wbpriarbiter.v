@@ -277,8 +277,16 @@ module	wbpriarbiter(i_clk,
                 assert(slave_b_nreqs == master_nreqs);
             end
             MASTER_A_OR_B: begin
+                // make sure counts make sense
                 assert(slave_b_nacks + slave_a_nacks == master_nacks);
                 assert(slave_b_nreqs + slave_a_nreqs == master_nreqs);
+
+                // if one master is connected, the other can't make reqs or
+                // receive acks
+                if(a_ownership_count)
+                    assert(slave_b_nacks == 0 && slave_b_nreqs == 0 && b_ownership_count == 0);
+                if(b_ownership_count)
+                    assert(slave_a_nacks == 0 && slave_a_nreqs == 0 && a_ownership_count == 0);
 
                 // make sure master either master doesn't hold the bus
                 // more than 2**LGDEPTH - otherwise the number of acks/reqs

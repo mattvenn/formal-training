@@ -243,7 +243,6 @@ module	fwb_master(i_clk, i_reset,
 	always @(*)
 		assume((!i_wb_ack)||(!i_wb_err));
 
-    /*
 	generate if (F_MAX_STALL > 0)
 	begin : MXSTALL
 		//
@@ -261,7 +260,7 @@ module	fwb_master(i_clk, i_reset,
 				f_stall_count <= 0;
 		always @(*)
 			if (i_wb_cyc)
-				assert(f_stall_count < F_MAX_STALL);
+				assume(f_stall_count < F_MAX_STALL);
 	end endgenerate
 
 	generate if (F_MAX_ACK_DELAY > 0)
@@ -286,13 +285,13 @@ module	fwb_master(i_clk, i_reset,
 		if ((!i_reset)&&(i_wb_cyc)&&(!i_wb_stb)
 					&&(!i_wb_ack)&&(!i_wb_err)
 					&&(f_outstanding > 0))
-			assert(f_ackwait_count < F_MAX_ACK_DELAY);
+			assume(f_ackwait_count < F_MAX_ACK_DELAY);
 	end endgenerate
 
 	//
 	// Count the number of requests that have been received
 	//
-    */
+
 	initial	f_nreqs = 0;
 	always @(posedge i_clk)
 	if ((i_reset)||(!i_wb_cyc))

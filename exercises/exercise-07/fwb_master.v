@@ -1,6 +1,56 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Filename:	fwb_master.v
+// Filename:	fwb_slave.v
+//
+// Project:	Zip CPU -- a small, lightweight, RISC CPU soft core
+//
+// Purpose:	This file describes the rules of a wishbone interaction from the
+//		perspective of a wishbone slave.  These formal rules may be used
+//	with yosys-smtbmc to *prove* that the slave properly handles outgoing
+//	responses to (assumed correct) incoming requests.
+//
+//	This module contains no functional logic.  It is intended for formal
+//	verification only.  The outputs returned, the number of requests that
+//	have been made, the number of acknowledgements received, and the number
+//	of outstanding requests, are designed for further formal verification
+//	purposes *only*.
+//
+//	This file is different from a companion formal_master.v file in that
+//	assumptions are made about the inputs to the slave: i_wb_cyc,
+//	i_wb_stb, i_wb_we, i_wb_addr, i_wb_data, and i_wb_sel, while full
+//	assertions are made about the outputs: o_wb_stall, o_wb_ack, o_wb_data,
+//	o_wb_err.  In the formal_master.v, assertions are made about the
+//	master outputs (slave inputs)), and assumptions are made about the
+//	master inputs (the slave outputs).
+//
+//
+//
+//
+// Creator:	Dan Gisselquist, Ph.D.
+//		Gisselquist Technology, LLC
+//
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (C) 2017-2018, Gisselquist Technology, LLC
+//
+// This program is free software (firmware): you can redistribute it and/or
+// modify it under the terms of  the GNU General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or (at
+// your option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTIBILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+// for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program.  (It's in the $(ROOT)/doc directory.  Run make with no
+// target there if the PDF file isn't present.)  If not, see
+// <http://www.gnu.org/licenses/> for a copy.
+//
+// License:	GPL, v3, as defined and found on www.gnu.org,
+//		http://www.gnu.org/licenses/gpl.html
+//
 //
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -106,20 +156,20 @@ module	fwb_master(i_clk, i_reset,
 	//
 	// Assume we start from a reset condition
 	initial assert(i_reset);
-	initial assume(!i_wb_cyc);
-	initial assume(!i_wb_stb);
+	initial assert(!i_wb_cyc);
+	initial assert(!i_wb_stb);
 	//
-	initial	assert(!i_wb_ack);
-	initial	assert(!i_wb_err);
+	initial	assume(!i_wb_ack);
+	initial	assume(!i_wb_err);
 
 	always @(posedge i_clk)
 	if ((f_past_valid)&&($past(i_reset)))
 	begin
-		assume(!i_wb_cyc);
-		assume(!i_wb_stb);
+		assert(!i_wb_cyc);
+		assert(!i_wb_stb);
 		//
-		assert(!i_wb_ack);
-		assert(!i_wb_err);
+		assume(!i_wb_ack);
+		assume(!i_wb_err);
 	end
 
 	//
@@ -132,12 +182,12 @@ module	fwb_master(i_clk, i_reset,
 	// the transaction
 	always @(posedge i_clk)
 	if ((f_past_valid)&&($past(i_wb_err))&&($past(i_wb_cyc)))
-		assume(!i_wb_cyc);
+		assert(!i_wb_cyc);
 
 	// STB can only be true if CYC is also true
 	always @(*)
 		if (i_wb_stb)
-			assume(i_wb_cyc);
+			assert(i_wb_cyc);
 
 	// If a request was both outstanding and stalled on the last clock,
 	// then nothing should change on this clock regarding it.
@@ -145,31 +195,31 @@ module	fwb_master(i_clk, i_reset,
 	if ((f_past_valid)&&(!$past(i_reset))&&($past(i_wb_stb))
 			&&($past(i_wb_stall))&&(i_wb_cyc))
 	begin
-		assume(i_wb_stb);
-		assume(i_wb_we   == $past(i_wb_we));
-		assume(i_wb_addr == $past(i_wb_addr));
-		assume(i_wb_sel  == $past(i_wb_sel));
+		assert(i_wb_stb);
+		assert(i_wb_we   == $past(i_wb_we));
+		assert(i_wb_addr == $past(i_wb_addr));
+		assert(i_wb_sel  == $past(i_wb_sel));
 		if (i_wb_we)
-			assume(i_wb_data == $past(i_wb_data));
+			assert(i_wb_data == $past(i_wb_data));
 	end
 
 	// Within any series of STB/requests, the direction of the request
 	// may not change.
 	always @(posedge i_clk)
 		if ((f_past_valid)&&($past(i_wb_stb))&&(i_wb_stb))
-			assume(i_wb_we == $past(i_wb_we));
+			assert(i_wb_we == $past(i_wb_we));
 
 
 	// Within any given bus cycle, the direction may *only* change when
 	// there are no further outstanding requests.
 	always @(posedge i_clk)
 		if ((f_past_valid)&&(f_outstanding > 0))
-			assume(i_wb_we == $past(i_wb_we));
+			assert(i_wb_we == $past(i_wb_we));
 
 	// Write requests must also set one (or more) of i_wb_sel
 	always @(*)
 		if ((i_wb_stb)&&(i_wb_we))
-			assume(|i_wb_sel);
+			assert(|i_wb_sel);
 
 
 	//
@@ -183,16 +233,17 @@ module	fwb_master(i_clk, i_reset,
 	always @(posedge i_clk)
 	if ((f_past_valid)&&(!$past(i_wb_cyc))&&(!i_wb_cyc))
 	begin
-		assert(!i_wb_ack);
-		assert(!i_wb_err);
+		assume(!i_wb_ack);
+		assume(!i_wb_err);
 		// Stall may still be true--such as when we are not
 		// selected at some arbiter between us and the slave
 	end
 
 	// ACK and ERR may never both be true at the same time
 	always @(*)
-		assert((!i_wb_ack)||(!i_wb_err));
+		assume((!i_wb_ack)||(!i_wb_err));
 
+    /*
 	generate if (F_MAX_STALL > 0)
 	begin : MXSTALL
 		//
@@ -241,6 +292,7 @@ module	fwb_master(i_clk, i_reset,
 	//
 	// Count the number of requests that have been received
 	//
+    */
 	initial	f_nreqs = 0;
 	always @(posedge i_clk)
 	if ((i_reset)||(!i_wb_cyc))
@@ -261,7 +313,8 @@ module	fwb_master(i_clk, i_reset,
 	else if ((i_wb_ack)||(i_wb_err))
 		f_nacks <= f_nacks + 1'b1;
 
-	//
+    
+    
 	// The number of outstanding requests is the difference between
 	// the number of requests and the number of acknowledgements
 	//
@@ -271,13 +324,13 @@ module	fwb_master(i_clk, i_reset,
 		if ((i_wb_cyc)&&(F_MAX_REQUESTS > 0))
 		begin
 			if (i_wb_stb)
-				assume(f_nreqs < F_MAX_REQUESTS);
+				assert(f_nreqs < F_MAX_REQUESTS);
 			else
-				assume(f_nreqs <= F_MAX_REQUESTS);
-			assert(f_nacks <= f_nreqs);
-			assert(f_outstanding < (1<<F_LGDEPTH)-1);
+				assert(f_nreqs <= F_MAX_REQUESTS);
+			assume(f_nacks <= f_nreqs);
+			assume(f_outstanding < (1<<F_LGDEPTH)-1);
 		end else
-			assert(f_outstanding < (1<<F_LGDEPTH)-1);
+			assume(f_outstanding < (1<<F_LGDEPTH)-1);
 
 	always @(*)
 		if ((i_wb_cyc)&&(f_outstanding == 0))
@@ -288,13 +341,13 @@ module	fwb_master(i_clk, i_reset,
 			// going out.
 			if (F_OPT_MINCLOCK_DELAY)
 			begin
-				assert(!i_wb_ack);
-				assert(!i_wb_err);
+				assume(!i_wb_ack);
+				assume(!i_wb_err);
 			end else begin
-				assert((!i_wb_ack)||((i_wb_stb)&&(!i_wb_stall)));
+				assume((!i_wb_ack)||((i_wb_stb)&&(!i_wb_stall)));
 				// The same is true of errors.  They may not be
 				// created before the request gets through
-				assert((!i_wb_err)||((i_wb_stb)&&(!i_wb_stall)));
+				assume((!i_wb_err)||((i_wb_stb)&&(!i_wb_stall)));
 			end
 		end
 
@@ -305,7 +358,7 @@ module	fwb_master(i_clk, i_reset,
 		// should be dropping the CYC line.
 		always @(*)
 			if (f_outstanding == 0)
-				assume((i_wb_stb)||(!i_wb_cyc));
+				assert((i_wb_stb)||(!i_wb_cyc));
 		// Not all masters will abide by this restriction.  Some
 		// masters may wish to implement read-modify-write bus
 		// interactions.  These masters need to keep CYC high between
@@ -325,7 +378,7 @@ module	fwb_master(i_clk, i_reset,
 		// make this check optional.
 		always @(posedge i_clk)
 			if ((f_past_valid)&&($past(i_wb_cyc))&&(!$past(i_wb_stb)))
-				assume(!i_wb_stb);
+				assert(!i_wb_stb);
 	end endgenerate
 
 endmodule

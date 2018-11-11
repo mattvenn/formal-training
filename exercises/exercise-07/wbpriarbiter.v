@@ -157,9 +157,13 @@ module	wbpriarbiter(i_clk,
         reset <= 0;
     end
 
-    // connect a slave properties file to master a, as arbiter apprears
+    localparam LGDEPTH = 4;
+    wire [LGDEPTH-1:0] slave_a_nreqs;
+    wire [LGDEPTH-1:0] slave_a_nacks;
+    wire [LGDEPTH-1:0] slave_a_outstanding;
+    // connect a slave properties file to master a, as arbiter appears
     // as slave to the 2 connected masters
-    fwb_slave #(.DW(8), .AW(8), .F_LGDEPTH(1)) fwb_slave_a( 
+    fwb_slave #(.DW(8), .AW(8), .F_LGDEPTH(LGDEPTH)) fwb_slave_a( 
         .i_reset(reset),
         .i_clk(i_clk),
         // The Wishbone bus
@@ -172,16 +176,40 @@ module	wbpriarbiter(i_clk,
         .i_wb_ack(o_a_ack),
         .i_wb_stall(o_a_stall),
         .i_wb_idata(0), 
-        .i_wb_err(o_a_err));
+        .i_wb_err(o_a_err),
+        // counting reqs, acks
+		.f_nreqs(slave_a_nreqs), .f_nacks(slave_a_nacks), .f_outstanding(slave_a_outstanding));
 
     // repeat for master b
-    // .
-    // .
-    // .
+    wire [LGDEPTH-1:0] slave_b_nreqs;
+    wire [LGDEPTH-1:0] slave_b_nacks;
+    wire [LGDEPTH-1:0] slave_b_outstanding;
+    // connect a slave properties file to master b, as arbiter appears
+    // as slave to the 2 connected masters
+    fwb_slave #(.DW(8), .AW(8), .F_LGDEPTH(LGDEPTH)) fwb_slave_b( 
+        .i_reset(reset),
+        .i_clk(i_clk),
+        // The Wishbone bus
+        .i_wb_cyc(i_b_cyc),
+        .i_wb_stb(i_b_stb),
+        .i_wb_we(i_b_we), 
+        .i_wb_addr(i_b_adr), 
+        .i_wb_data(i_b_dat), 
+        .i_wb_sel(i_b_sel),
+        .i_wb_ack(o_b_ack),
+        .i_wb_stall(o_b_stall),
+        .i_wb_idata(0), 
+        .i_wb_err(o_b_err),
+        // counting reqs, acks
+		.f_nreqs(slave_b_nreqs), .f_nacks(slave_b_nacks), .f_outstanding(slave_b_outstanding));
+
     
     // connect master properties to the outputs, as arbiter appears as master
     // to the rest of the connected bus
-    fwb_master #(.DW(8), .AW(8), .F_LGDEPTH(1)) fwb_master(
+    wire [LGDEPTH-1:0] master_nreqs;
+    wire [LGDEPTH-1:0] master_nacks;
+    wire [LGDEPTH-1:0] master_outstanding;
+    fwb_master #(.DW(8), .AW(8), .F_LGDEPTH(LGDEPTH)) fwb_master(
         .i_reset(reset),
         .i_clk(i_clk),
         // The Wishbone bus
@@ -193,14 +221,14 @@ module	wbpriarbiter(i_clk,
         .i_wb_sel(o_sel),
         .i_wb_ack(i_ack),
         .i_wb_stall(i_stall),
-        .i_wb_err(i_err));
-    //
-    //
-    //
-	//
-	// Your properties go here
-	//
-    //
+        .i_wb_err(i_err),
+        // counting reqs, acks
+		.f_nreqs(master_nreqs), .f_nacks(master_nacks), .f_outstanding(master_outstanding));
+   
+
+   // formal stuff
+   //
     
+   
 `endif
 endmodule

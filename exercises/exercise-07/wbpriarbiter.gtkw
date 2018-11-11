@@ -1,0 +1,82 @@
+[*]
+[*] GTKWave Analyzer v3.3.86 (w)1999-2017 BSI
+[*] Sun Nov 11 18:16:57 2018
+[*]
+[dumpfile] "/home/matt/fpga/formal-training/exercises/exercise-07/wbpriarbiter/engine_0/trace_induct.vcd"
+[dumpfile_mtime] "Sun Nov 11 18:16:26 2018"
+[dumpfile_size] 22810
+[savefile] "/home/matt/fpga/formal-training/exercises/exercise-07/wbpriarbiter.gtkw"
+[timestart] 28
+[size] 1237 745
+[pos] -1 -1
+*-5.763438 200 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] wbpriarbiter.
+[sst_width] 223
+[signals_width] 288
+[sst_expanded] 1
+[sst_vpaned_height] 203
+@28
+wbpriarbiter.i_clk
+wbpriarbiter.reset
+wbpriarbiter.r_a_owner
+@200
+-
+-master a connections
+@22
+wbpriarbiter.a_ownership_count[3:0]
+@24
+wbpriarbiter.slave_a_nacks[3:0]
+wbpriarbiter.slave_a_nreqs[3:0]
+wbpriarbiter.slave_a_outstanding[3:0]
+@28
+wbpriarbiter.i_a_cyc
+wbpriarbiter.i_a_stb
+wbpriarbiter.i_a_we
+@22
+wbpriarbiter.i_a_adr[7:0]
+wbpriarbiter.i_a_dat[7:0]
+@28
+wbpriarbiter.o_a_ack
+wbpriarbiter.o_a_stall
+wbpriarbiter.o_a_err
+@200
+-
+-master b connections
+@23
+wbpriarbiter.b_ownership_count[3:0]
+@24
+wbpriarbiter.slave_b_nacks[3:0]
+wbpriarbiter.slave_b_nreqs[3:0]
+wbpriarbiter.slave_b_outstanding[3:0]
+@28
+wbpriarbiter.i_b_cyc
+wbpriarbiter.i_b_stb
+wbpriarbiter.i_b_we
+@22
+wbpriarbiter.i_b_adr[7:0]
+wbpriarbiter.i_b_dat[7:0]
+@28
+wbpriarbiter.o_b_ack
+wbpriarbiter.o_b_stall
+wbpriarbiter.o_b_err
+@200
+-
+-slave connections
+@24
+wbpriarbiter.master_nacks[3:0]
+wbpriarbiter.master_nreqs[3:0]
+wbpriarbiter.master_outstanding[3:0]
+@28
+wbpriarbiter.o_cyc
+wbpriarbiter.o_stb
+wbpriarbiter.o_we
+@22
+wbpriarbiter.o_adr[7:0]
+wbpriarbiter.o_dat[7:0]
+@28
+wbpriarbiter.o_sel
+wbpriarbiter.i_ack
+wbpriarbiter.i_stall
+wbpriarbiter.i_err
+[pattern_trace] 1
+[pattern_trace] 0

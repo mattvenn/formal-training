@@ -76,12 +76,8 @@ module	absoneup(i_clk, o_carry);
 		//
 		// Your logic goes here
 		//
-        (* any_const *) reg [31:0] incr;
+        (* anyseq *) wire [31:0] incr;
         assign increment = incr;
-        initial	r_count = 0;
-        initial	o_carry   = 0;
-        always @(posedge i_clk)
-            { o_carry, r_count } <= r_count + increment;
 
 	end else begin : NO_ABSTRACTION
 
@@ -90,7 +86,7 @@ module	absoneup(i_clk, o_carry);
 	end endgenerate
 
 	initial	r_count = 0;
-	initial	o_carry   = 0;
+	initial	o_carry   = 1;
 	always @(posedge i_clk)
 		{ o_carry, r_count } <= r_count + increment;
 
@@ -100,12 +96,24 @@ module	absoneup(i_clk, o_carry);
 	always @(posedge i_clk)
 		f_past_valid <= 1'b1;
 
-	//
-	// Your proof goes here
-	//
+
+    always @(*)
+        assert(o_carry == (r_count == 0));
+
     always @(posedge i_clk)
-        if(f_past_valid && $past(&r_count))
-            assert(o_carry);
+        if(f_past_valid) begin
+            if($past(&r_count))
+                assert(o_carry);
+            if(o_carry)
+                assert(r_count < $past(r_count));
+        end
+
+    always @(posedge i_clk)
+        if(o_carry)
+            assume($past(increment == 1));
+
+    always @(posedge i_clk)
+        assume(increment > 0);
 
 `endif
 endmodule

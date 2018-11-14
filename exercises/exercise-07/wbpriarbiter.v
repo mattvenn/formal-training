@@ -238,20 +238,6 @@ module	wbpriarbiter(i_clk,
     reg [$clog2(NUM_TESTS)-1:0] test_case = MASTER_A_OR_B;
     wire r_b_owner = !r_a_owner;
 
-    reg [LGDEPTH-1:0] a_ownership_count = 0;
-    reg [LGDEPTH-1:0] b_ownership_count = 0;
-
-    always @(posedge i_clk) begin
-        if(r_a_owner && i_a_cyc)
-            a_ownership_count <= a_ownership_count + 1;
-        else if (r_b_owner && i_b_cyc)
-            b_ownership_count <= b_ownership_count + 1;
-        if(!r_a_owner)
-            a_ownership_count <= 0;
-        if(!r_b_owner)
-            b_ownership_count <= 0;
-    end
-
     always @(posedge i_clk) begin
         case(test_case)
             MASTER_A_ONLY: begin
@@ -277,22 +263,15 @@ module	wbpriarbiter(i_clk,
                 assert(slave_b_nreqs == master_nreqs);
             end
             MASTER_A_OR_B: begin
-                // make sure counts make sense
-                assert(slave_b_nacks + slave_a_nacks == master_nacks);
-                assert(slave_b_nreqs + slave_a_nreqs == master_nreqs);
-
-                // if one master is connected, the other can't make reqs or
-                // receive acks
-                if(a_ownership_count)
-                    assert(slave_b_nacks == 0 && slave_b_nreqs == 0 && b_ownership_count == 0);
-                if(b_ownership_count)
-                    assert(slave_a_nacks == 0 && slave_a_nreqs == 0 && a_ownership_count == 0);
-
-                // make sure master either master doesn't hold the bus
-                // more than 2**LGDEPTH - otherwise the number of acks/reqs
-                // can be overrun
-                assume(a_ownership_count < (2**LGDEPTH)-1);
-                assume(b_ownership_count < (2**LGDEPTH)-1);
+                if(r_a_owner) begin
+                    assert(slave_b_nacks == 0);
+                    assert(slave_b_nreqs == 0);
+                    assert(slave_a_outstanding == master_outstanding);
+                end else begin
+                    assert(slave_a_nacks == 0);
+                    assert(slave_a_nreqs == 0);
+                    assert(slave_b_outstanding == master_outstanding);
+                end
             end
         endcase
     end 

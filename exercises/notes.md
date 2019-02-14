@@ -26,4 +26,21 @@ builds up to testid 4
 p78
 2 parts:
 
-1
+// #1, To Prove:
+//	1. Assume that once raised, i_start_signal will remain high until it
+//		is both high and the counter is no longer busy.
+//		Following (i_start_signal)&&(!o_busy), i_start_signal is no
+//		longer constrained--until it is raised again.
+//	2. o_busy will *always* be true any time the counter is non-zero.
+//	3. If the counter is non-zero, it should always be counting down
+
+fairly straight forwards
+
+and
+
+// #2, To Prove:
+//	1. First, adjust o_busy to be a clocked signal/register
+//	2. Prove that it will only ever be true when the counter is non-zero
+
+need to rearrange clocked block to ensure busy flag is set correctly
+can introduce cover here?

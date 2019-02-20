@@ -5,8 +5,13 @@ my first time teaching the course
 not my course, I will be skipping sections and sometimes changing the ordering
 encourage support with each other, discussion
 need to choose some new times for the times I'm in China.
+have a break after 1 hour
+zoom etiquette, mute mic
+
+people: eric, hipolito, guillem, ma'muri
 
 what have been my bugs?
+
 * fifo write and write when full results in a pointer out by one
 * spi client - sometimes would change temp output register while copying to data out
 
@@ -21,11 +26,8 @@ multiply? where is the mulitply?
 check the answer is produced from the for loop
 so the intention here is that you can use techniques in the formal properties definition that you wouldn't dream of using on the fpga itself.
 
-# examples
+## p59 example-01 : counter
 
-## example-01 : counter
-
-p59
 fails BMC because counter reg isn't initialised
 
 ## p65 example-02 : past & f_past_valid
@@ -40,7 +42,7 @@ builds up to testid 4
 on async design f_past_valid takes several cycles, but reset is async could be a difference.
 initial assume won't work with verific (or verific enabled yosys). verific is parser system for verilog, systemverilog and vhdl
 
-## p78 example-03 : busy counter
+## p78 example-03 : busy counter (homework for session 1)
 
 2 parts:
 
@@ -62,6 +64,8 @@ and
 
 need to rearrange clocked block to ensure busy flag is set correctly
 can introduce cover here?
+
+# K-induction - p80
 
 # p84:
 
@@ -87,24 +91,60 @@ good answers on page 90, but mostly a fun way to see that k induction can start 
 
 shift reg fix i_ce
 i_ce assumed?
-what is share-all opt
+what is share-all opt_merge - merges identical cells.
 
-# p103:
+# p103 example-04 : dblpipe , opt-merge:
+
 I need i_ce assumed, so that registers get filled?
 change engine to  abc pdr "fixes" with no assume(i_ce)
 OR force no more than 2 clocks between i_ce
 
-# p105:
-
 OR force no more than 2 clocks between i_ce AND increase steps to 22
 add engine to abc pdr also works with steps 12, how to remove smtbmc for induction?
+
+# p105 example-05 : lfsrs prove equivalence
+
+need to do same as in exercise 04
 
 # p106:
 
 a problem == your design is doing something odd/unexpected/unwanted.
 
-# p108:
+# p124: exercise 6 - simpler arbiter
 
-wb . check ex 06 and 07
-done
+# p127: exercise 7 - wishbone bus arbiter (homework)
 
+## QUESTIONS
+
+pls check my exercise 6
+
+# p121:
+
+solves i_ce problem? isnt' i_ce probelm about ensuring things become synchronised?
+
+# p122:
+
+? what is the problem. my guess is timing on the ack vs req
+
+# p137:
+
+problems with multiple files.
+
+# p143: 
+
+prefetch so what?
+
+p145, f_value should be f_data?
+
+# p147:
+
+cache implementation
+what 3 properties?
+
+# p224:
+
+how is the assert worked out that way? doesn't make sense?
+
+# p239:
+
+clock switching?

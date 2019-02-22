@@ -100,122 +100,87 @@ module	reqarb(i_clk, i_reset,
     always @(posedge i_clk)
         f_past_valid <= 1'b1;
 
+	// Handle the initial and reset condition(s)
+	initial	assume(i_reset);
+	initial	assume(!i_a_req);
+	initial	assume(!i_b_req);
+	initial	assert(!o_req);
+
+	always @(*)
+	if (!f_past_valid)
+		assume(i_reset);
+
+	always @(posedge i_clk)
+	if ((!f_past_valid)||($past(i_reset)))
+	begin
+		assume(!i_a_req);
+		assume(!i_b_req);
+		assert(!o_req);
+	end
+
     wire b_is_the_owner = !a_is_the_owner;
     // assume external inputs
     // assert internal states	
     //
     //
-    // if clients are waiting, they keep their i_*_req line high and data must
+    // if clients are waiting with a request, they keep their i_*_req line high and data must
     // stay the same
     always @(posedge i_clk) begin
-        if(f_past_valid && a_wait_count > 0) begin
-            assume(i_a_data == $past(i_a_data));
-            assume(i_a_req);
+        if(f_past_valid &&  !$past(i_reset))
+            if($past(i_a_req) && $past(o_a_busy)) begin
+                assume(i_a_data == $past(i_a_data));
+                assume(i_a_req);
+            end
+
+        if(f_past_valid &&  !$past(i_reset))
+            if($past(i_b_req) && $past(o_b_busy)) begin
+                assume(i_b_data == $past(i_b_data));
+                assume(i_b_req);
+            end
+
+        // to keep the traces easier to read: clients don't change data if not owner
+        if(f_past_valid && !$past(i_reset))
+            if(!i_b_req || o_b_busy)
+                assume(i_b_data == $past(i_b_data));
+        if(f_past_valid && !$past(i_reset))
+            if(!i_a_req || o_a_busy)
+                assume(i_a_data == $past(i_a_data));
+    end
+
+//	1. No data will be lost: if request happening, but out channel is busy, then data can't change
+    always @(posedge i_clk) 
+        if(f_past_valid && $past(i_busy) && $past(o_req) && !$past(i_reset))
+            assert(o_req && $past(o_data) == o_data);
+
+
+//	2. Only one source will ever have access to the channel at any given
+//		time
+    always @(posedge i_clk) begin
+        assert(o_b_busy||o_a_busy);
+    end
+
+//	3. All requests will go through
+// if in past channel a made request, and bus is idle, the bus is given to a
+    always @(posedge i_clk) begin
+        if(f_past_valid && !$past(i_reset) && $past(i_a_req) && !$past(o_req)) begin
+            assert(a_is_the_owner);
+            assert(i_busy == o_a_busy);
         end
-        if(f_past_valid && b_wait_count > 0) begin
-            assume(i_b_data == $past(i_b_data));
-            assume(i_b_req);
+    end
+    // same for b
+    always @(posedge i_clk) begin
+        if(f_past_valid && !$past(i_reset) && $past(i_b_req) && !$past(o_req)) begin
+            assert(b_is_the_owner);
+            assert(i_busy == o_b_busy);
         end
     end
 
-    //	1. No data will be lost
-    //	data could be lost:
-    //	a) if either requester is transmitting data and the channel switches
-    //	#2 shows this can't happen
-    //  b) if accept a request while master is busy
-    //
-    //  assume that the clients will wait until busy goes low
-    always @(posedge i_clk)
-        if(i_a_req && i_busy)
-            assert(o_a_busy);
-    always @(posedge i_clk)
-        if(i_b_req && i_busy)
-            assert(o_b_busy);
+// cover a few things
     
-    //	2. Only one source will ever have access to the channel at any given //		time
-    always @(posedge i_clk)
-        if(i_a_req && a_is_the_owner) begin
-            assert(o_b_busy);
-            assert(o_req);
-            assert(o_data == i_a_data);
-        end
-    always @(posedge i_clk)
-        if(i_b_req && b_is_the_owner) begin
-            assert(o_a_busy);
-            assert(o_req);
-            assert(o_data == i_b_data);
-        end
-        
-    //	3. All requests will go through
-    //	define max wait time
-    localparam MAX_WAIT = 15;
-    reg [15:0] a_wait_count = 0;
-    reg [15:0] b_wait_count = 0;
-    reg [15:0] a_conn_count = 0;
-    reg [15:0] b_conn_count = 0;
     always @(posedge i_clk) begin
-        // request counters
-        // if a is requesting but channel is busy
-        if(!i_reset && i_a_req && o_a_busy)
-            a_wait_count <= a_wait_count + 1;
-        else
-            a_wait_count <= 0;
-
-        if(!i_reset && i_b_req && o_b_busy)
-            b_wait_count <= b_wait_count + 1;
-        else
-            b_wait_count <= 0;
-
-        // connect counters
-        if(a_is_the_owner && !o_a_busy)
-            a_conn_count <= a_conn_count + 1;
-        if(b_is_the_owner && !o_b_busy)
-            b_conn_count <= b_conn_count + 1;
-        // reset counters
-        if(!i_a_req)
-            a_conn_count <= 0;
-        if(!i_b_req)
-            b_conn_count <= 0;
-
-        // on reset, reset all counters
-        if(i_reset) begin
-            a_conn_count <= 0;
-            b_conn_count <= 0;
-            a_wait_count <= 0;
-            b_wait_count <= 0;
-        end
+        cover(a_is_the_owner && i_a_req && i_b_req);
+        cover(b_is_the_owner && i_b_req && i_a_req);
+        cover(b_is_the_owner && i_b_req && i_busy);
     end
-
-    // force the clients to relinquish their requests after 5 clock cycles
-    always @(posedge i_clk) begin
-        assume(a_conn_count < 5);
-        assume(b_conn_count < 5);
-    end
-
-    // force the master to not be busy for too long
-    reg [15:0] master_busy_count = 0;
-    always @(posedge i_clk) begin
-        if(i_busy)
-            master_busy_count <= master_busy_count + 1;
-        if(!i_busy)
-            master_busy_count <= 0;
-        assume(master_busy_count < 3);
-        if(f_past_valid)
-            if($past(i_busy,3) || $past(i_busy,2))
-                assume(i_busy == 0);
-    end
-
-    // assert clients don't wait too long
-    always @(posedge i_clk) begin
-        assert(a_wait_count < MAX_WAIT);
-        assert(b_wait_count < MAX_WAIT);
-    end
-
-    always @(posedge i_clk) begin
-        if(f_past_valid)
-            cover($past(a_conn_count) == 2 && b_is_the_owner);
-    end
-
-    
 `endif
 endmodule

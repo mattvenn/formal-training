@@ -1,17 +1,17 @@
 [*]
-[*] GTKWave Analyzer v3.3.86 (w)1999-2017 BSI
-[*] Sat Nov 10 16:25:00 2018
+[*] GTKWave Analyzer v3.3.66 (w)1999-2015 BSI
+[*] Wed Feb 20 18:52:17 2019
 [*]
-[dumpfile] "/home/matt/fpga/formal-training/exercises/exercise-06/reqarb/engine_0/trace_induct.vcd"
-[dumpfile_mtime] "Sat Nov 10 16:23:55 2018"
-[dumpfile_size] 4047
-[savefile] "/home/matt/fpga/formal-training/exercises/exercise-06/reqarb.gtkw"
+[dumpfile] "/home/matt/work/fpga/symbiotic-eda/formal-lessons/exercises/exercise-06/reqarb/engine_0/trace0.vcd"
+[dumpfile_mtime] "Wed Feb 20 18:51:57 2019"
+[dumpfile_size] 2276
+[savefile] "/home/matt/work/fpga/symbiotic-eda/formal-lessons/exercises/exercise-06/reqarb.gtkw"
 [timestart] 0
 [size] 1237 745
-[pos] -1 -1
+[pos] 363 -237
 *-5.696324 110 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
-[sst_width] 223
-[signals_width] 234
+[sst_width] 253
+[signals_width] 283
 [sst_expanded] 1
 [sst_vpaned_height] 203
 @28
@@ -21,6 +21,8 @@ reqarb.i_reset
 -
 @28
 reqarb.a_is_the_owner
+@29
+reqarb.b_is_the_owner
 @200
 -
 @28
@@ -44,9 +46,7 @@ reqarb.o_data
 @24
 reqarb.a_wait_count[15:0]
 reqarb.a_conn_count[15:0]
-@25
 reqarb.b_wait_count[15:0]
-@24
 reqarb.b_conn_count[15:0]
 reqarb.master_busy_count[15:0]
 [pattern_trace] 1

@@ -1,0 +1,18 @@
+[options]
+mode cover
+#mode prove
+depth 12
+append 10
+
+[engines]
+smtbmc
+# abc pdr
+# aig avy
+# aig suprove
+
+[script]
+read_verilog -formal reqarb2.v
+prep -top reqarb
+
+[files]
+reqarb2.v
